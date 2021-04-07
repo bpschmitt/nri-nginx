@@ -1,0 +1,23 @@
+# The following example matches all Docker containers whose image 
+# contains nginx (can be provided as a regex) and have the label env=production.
+#
+# https://docs.newrelic.com/docs/integrations/host-integrations/installation/container-auto-discovery
+discovery:
+  docker:
+    # A container matches if all the properties match (AND operation)
+    # Other available keys: ip, private.ip, port, private.port
+    match:
+      image: /nginx/
+      label.env: production
+integrations:
+  - name: nri-nginx
+    env:
+      # Use the discovered IP as the host address
+      # Other discoverable variables can be found here:
+      # https://docs.newrelic.com/docs/integrations/host-integrations/installation/container-auto-discovery-host-integrations/#container-information
+      STATUS_URL: http://${discovery.ip}/status
+      # Name of Nginx status module OHI is to query against. discover | ngx_http_stub_status_module | ngx_http_status_module | ngx_http_api_module
+      STATUS_MODULE: discover
+      # These are not documented, but I assume they correspond with the -metrics and -remote_monitoring flags.
+      METRICS: 1
+      REMOTE_MONITORING: 1
